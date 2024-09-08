@@ -10,14 +10,14 @@ class ClassTest {
     @Test
     fun getJavaVersion() {
         val classFileName = "./build/classes/kotlin/main/jarQuery/AppKt.class"
-        println("target version: ${getJavaVersionFromClassFile(classFileName)}")
+        println("target version: ${getJavaVersionFromStream(classFileName)}")
         assertTrue(true)
     }
 
     @Test
     fun testInvalidClassFile() {
         assertFailsWith<IllegalArgumentException> {
-            getJavaVersionFromClassFile("/home/mike/projects/jarQuery/README.md")
+            getJavaVersionFromStream("/home/mike/projects/jarQuery/README.md")
         }
     }
 }
