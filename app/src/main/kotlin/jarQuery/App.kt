@@ -1,4 +1,9 @@
 package jarQuery
+import jarQuery.data.JarInfo
+import jarQuery.utils.displayJarInfo
+import jarQuery.utils.error
+import jarQuery.utils.processDirectory
+import jarQuery.utils.processFile
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -12,7 +17,7 @@ import kotlin.system.exitProcess
 class JarQuery : Callable<Int> {
 
     @Option(names = ["-f", "--file"], arity = "0..1", paramLabel = "JAR file", description = ["the JAR file"])
-    public var jarFileOption: File? = null
+    var jarFileOption: File? = null
 
     @Option(names = ["-d", "--directory"], arity = "0..1", paramLabel = "Directory",
         description = ["Directory containing JAR files"])
@@ -24,6 +29,7 @@ class JarQuery : Callable<Int> {
     override fun call(): Int {
         var result = 0
         debug = debugOption
+        val jars: MutableList<JarInfo> = mutableListOf()
 
         when {
             jarFileOption != null && directoryOption != null -> error("Specify either file or directory, not both", 10)
@@ -32,16 +38,17 @@ class JarQuery : Callable<Int> {
                 // work around "mutable property that could be mutated concurrently" error
                 val jf = jarFileOption
                 if (jf != null) {
-                    result = processFile(jf)
+                    result = processFile(jf, jars)
                 }
             }
             else -> {
                 val dir = directoryOption
                 if (dir != null) {
-                    result =  processDirectory(dir)
+                    result = processDirectory(dir, jars)
                 }
             }
         }
+        displayJarInfo(jars)
         return result
     }
 }

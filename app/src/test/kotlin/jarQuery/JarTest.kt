@@ -1,10 +1,10 @@
 package jarQuery
 
+import jarQuery.utils.isValidFile
+import jarQuery.utils.processFile
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.FilenameFilter
-import java.lang.IllegalArgumentException
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 

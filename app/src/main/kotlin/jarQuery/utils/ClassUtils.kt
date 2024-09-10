@@ -1,4 +1,4 @@
-package jarQuery
+package jarQuery.utils
 
 import java.io.DataInputStream
 import java.io.InputStream

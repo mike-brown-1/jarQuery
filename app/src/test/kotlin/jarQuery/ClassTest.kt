@@ -1,5 +1,6 @@
 package jarQuery
 
+import jarQuery.utils.getJavaVersionFromStream
 import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
