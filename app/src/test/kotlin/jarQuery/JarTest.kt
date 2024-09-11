@@ -1,5 +1,6 @@
 package jarQuery
 
+import jarQuery.data.JarInfo
 import jarQuery.utils.isValidFile
 import jarQuery.utils.processFile
 import org.junit.jupiter.api.Test
@@ -36,7 +37,8 @@ class JarTest {
         }
         val jarFiles = buildLibsDir.listFiles(jarFilter)
         if (jarFiles != null) {
-            val result = processFile(jarFiles[0])
+            val jars: MutableList<JarInfo> = mutableListOf()
+            val result = processFile(jarFiles[0], jars)
             assertTrue(result == 0)
         }
     }

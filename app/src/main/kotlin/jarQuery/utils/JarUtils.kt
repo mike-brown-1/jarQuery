@@ -3,6 +3,7 @@ package jarQuery.utils
 import jarQuery.data.ClassInfo
 import jarQuery.data.JarInfo
 import jarQuery.debug
+import sun.tools.jar.resources.jar
 import java.io.File
 import java.util.jar.JarFile
 import java.util.zip.ZipException
@@ -58,7 +59,15 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
 }
 
 fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
-    println("processing directory: ${directory.name}")
+    debugMsg("processing directory: ${directory.name}")
+    val jarFiles = getJarFiles(directory)
+    if (jarFiles.size == 0) {
+        println("No jar files found in ${directory.name}")
+    } else {
+        jarFiles.forEach { jar ->
+            processFile(jar, jars)
+        }
+    }
     return 0
 }
 
