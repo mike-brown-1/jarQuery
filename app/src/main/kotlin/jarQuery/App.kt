@@ -12,7 +12,7 @@ import java.io.File
 import java.util.concurrent.Callable
 import kotlin.system.exitProcess
 
-@Command(name = "jarQuery", mixinStandardHelpOptions = true, version = ["jarQuery 0.2.0"],
+@Command(name = "jarQuery", mixinStandardHelpOptions = true, version = ["jarQuery $appVersion"],
     description = ["Display information about one or more JAR files to STDOUT."])
 class JarQuery : Callable<Int> {
 
@@ -26,9 +26,13 @@ class JarQuery : Callable<Int> {
     @Option(names = ["--debug"], description = ["Add detailed messages while processing request"])
     var debugOption = false
 
+    @Option(names = ["-m", "--manifest"], description = ["Display manifest attributes"])
+    var manifestOption = false
+
     override fun call(): Int {
         var result = 0
         debug = debugOption
+        manifest = manifestOption
         val jars: MutableList<JarInfo> = mutableListOf()
 
         when {
@@ -54,27 +58,3 @@ class JarQuery : Callable<Int> {
 }
 
 fun main(args: Array<String>) : Unit = exitProcess(CommandLine(JarQuery()).execute(*args))
-/*
-fun main(args: Array<String>) {
-    if (args.size == 0) {
-        throw IllegalArgumentException("Must provide class file name as an argument")
-    }
-
-    println("processing: ${args[0]}")
-    val jarFile = isValidFile(args[0])
-    if (jarFile == null) {
-        throw IllegalArgumentException("${args[0]} is not a valid file")
-    }
-
-    println("----manifest:")
-    val manifest = jarFile.manifest
-    for ((key, value) in manifest.mainAttributes) {
-        println("${key}: $value")
-    }
-
-    println("---- jar contents:")
-    jarFile.stream().forEach { entry ->
-        println(entry)
-    }
-}
-*/

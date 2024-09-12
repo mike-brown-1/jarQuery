@@ -16,4 +16,14 @@ class UtilsTest {
         val jars = getJarFiles(dir)
         assertTrue(jars.size > 0, "should have a couple of jars")
     }
+
+    @Test
+    fun maps() {
+        val m = mutableMapOf<String, String>()
+        m["one"] = "1"
+        for ((key, value) in m) {
+            println("$key: $value")
+        }
+
+    }
 }

@@ -2,11 +2,12 @@ package jarQuery.utils
 
 import jarQuery.data.ClassInfo
 import jarQuery.data.JarInfo
-import jarQuery.debug
-import sun.tools.jar.resources.jar
+import jarQuery.manifest
 import java.io.File
 import java.util.jar.JarFile
 import java.util.zip.ZipException
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 fun isValidFile(file: File): Boolean {
     return file.exists() && file.isFile()
@@ -27,11 +28,13 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
             val jarInfo = JarInfo(jFile.name, mutableMapOf<String, String>(), 99, 0, mutableListOf<ClassInfo>())
             jars.add(jarInfo)
 
-            // TODO add manifest if user asked for it, command line option
-            println("----manifest:")
-            val manifest = jFile.manifest
-            for ((key, value) in manifest.mainAttributes) {
-                println("${key}: $value")
+            if (manifest) {
+                println("----manifest:")
+                val manifest = jFile.manifest
+                for ((key, value) in manifest.mainAttributes) {
+                    jarInfo.manifest["$key"] = value.toString()
+//                    println("${key}: $value")
+                }
             }
 
             var entryCount = 0
@@ -59,21 +62,34 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
 }
 
 fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
-    debugMsg("processing directory: ${directory.name}")
-    val jarFiles = getJarFiles(directory)
-    if (jarFiles.size == 0) {
-        println("No jar files found in ${directory.name}")
-    } else {
-        jarFiles.forEach { jar ->
-            processFile(jar, jars)
+    var result = 0
+    if (isValidDirectory(directory)) {
+        debugMsg("processing directory: ${directory.name}")
+        val jarFiles = getJarFiles(directory)
+        if (jarFiles.isEmpty()) {
+            println("No jar files found in ${directory.name}")
+        } else {
+            jarFiles.forEach { jar ->
+                processFile(jar, jars)
+            }
         }
+    } else  {
+        println("${directory.name} is not a valid directory")
+        result = 40
     }
-    return 0
+    return result
 }
 
 fun displayJarInfo(jars: List<JarInfo>) {
     jars.forEach { jar ->
         println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
+        if (manifest) {
+            println("    Manifest:")
+            for ((key, value) in jar.manifest) {
+                println("        $key: $value")
+            }
+            println()
+        }
         jar.classes.forEach { clazz ->
             println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}")
         }

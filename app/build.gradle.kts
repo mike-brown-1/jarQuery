@@ -30,15 +30,36 @@ application {
     mainClass = "jarQuery.AppKt"
 }
 
-version = "0.2.0"
+version = "0.3.0"
 val now = ZonedDateTime.now()
 val dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm z")
+
+tasks.register("updateVersionInSource") {
+    group = "build"
+    description = "Updates the appVersion in Config.kt"
+
+    doLast {
+        println("**** updating version number")
+        val versionFile = file("src/main/kotlin/jarQuery/Config.kt")
+        val content = versionFile.readText()
+        val updatedContent = content.replace(
+            """const val appVersion = ".*"""".toRegex(),
+            """const val appVersion = "${project.version}""""
+        )
+        versionFile.writeText(updatedContent)
+    }
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("updateVersionInSource")
+}
 
 tasks.jar {
     manifest {
         attributes(
             "Implementation-Title" to "jarQuery",
             "Implementation-Version" to archiveVersion,
+            "Implementation-Vendor" to "Mike Brown",
             "Built-On" to dtf.format(now)
         )
     }
