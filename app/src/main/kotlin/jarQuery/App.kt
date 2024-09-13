@@ -16,15 +16,19 @@ import kotlin.system.exitProcess
     description = ["Display information about one or more JAR files to STDOUT."])
 class JarQuery : Callable<Int> {
 
-    @Option(names = ["-f", "--file"], arity = "0..1", paramLabel = "JAR file", description = ["the JAR file"])
+    @Option(names = ["-j", "--jarFile"], arity = "0..1", paramLabel = "JAR file",
+        description = ["the JAR file to process"])
     var jarFileOption: File? = null
 
     @Option(names = ["-d", "--directory"], arity = "0..1", paramLabel = "Directory",
-        description = ["Directory containing JAR files"])
+        description = ["Directory containing JAR files to process"])
     var directoryOption: File? = null
 
     @Option(names = ["--debug"], description = ["Add detailed messages while processing request"])
     var debugOption = false
+
+    @Option(names = ["-c", "--classes"], description = ["Show information on classes in the jar file"])
+    var classesOption = false
 
     @Option(names = ["-m", "--manifest"], description = ["Display manifest attributes"])
     var manifestOption = false
@@ -33,6 +37,7 @@ class JarQuery : Callable<Int> {
         var result = 0
         debug = debugOption
         manifest = manifestOption
+        classes = classesOption
         val jars: MutableList<JarInfo> = mutableListOf()
 
         when {
