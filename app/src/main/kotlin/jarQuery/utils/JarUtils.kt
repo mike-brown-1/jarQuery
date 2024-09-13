@@ -5,10 +5,16 @@ import jarQuery.data.JarInfo
 import jarQuery.manifest
 import jarQuery.classes
 import java.io.File
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.jar.JarFile
 import java.util.zip.ZipException
 import kotlin.collections.component1
 import kotlin.collections.component2
+
+val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
 
 fun isValidFile(file: File): Boolean {
     return file.exists() && file.isFile()
@@ -41,14 +47,16 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
                 if (!entry.isDirectory && entry.name.endsWith(".class")) {
                     entryCount++
                     val ver = getJavaVersionFromStream(jFile.getInputStream(entry))
-                    val classInfo = ClassInfo(entry.name, ver, entry.size)
-                    jarInfo.classes.add(classInfo)
                     if (jarInfo.minVersion > ver) {
                         jarInfo.minVersion = ver
                     }
                     if (ver > jarInfo.maxVersion) {
                         jarInfo.maxVersion = ver
                     }
+                    val modified = entry.lastModifiedTime.toInstant()
+                    val localDataTime = LocalDateTime.ofInstant(modified, ZoneId.systemDefault())
+                    val classInfo = ClassInfo(entry.name, ver, entry.size, localDataTime)
+                    jarInfo.classes.add(classInfo)
                 } else {
                     debugMsg("Skipping: ${entry.name}")
                 }
@@ -91,7 +99,9 @@ fun displayJarInfo(jars: List<JarInfo>) {
         }
         if (classes) {
             jar.classes.forEach { clazz ->
-                println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}")
+                println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}, "
+                        + "modified: ${clazz.modified.format(formatter)}")
+
             }
             println("")
         }

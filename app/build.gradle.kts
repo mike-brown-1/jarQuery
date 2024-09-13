@@ -30,7 +30,7 @@ application {
     mainClass = "jarQuery.AppKt"
 }
 
-version = "0.4.0"
+version = "0.5.0"
 val now = ZonedDateTime.now()
 val dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm z")
 
