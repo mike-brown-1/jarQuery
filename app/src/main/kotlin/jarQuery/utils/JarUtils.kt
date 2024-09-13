@@ -3,6 +3,7 @@ package jarQuery.utils
 import jarQuery.data.ClassInfo
 import jarQuery.data.JarInfo
 import jarQuery.manifest
+import jarQuery.classes
 import java.io.File
 import java.util.jar.JarFile
 import java.util.zip.ZipException
@@ -29,11 +30,9 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
             jars.add(jarInfo)
 
             if (manifest) {
-                println("----manifest:")
                 val manifest = jFile.manifest
                 for ((key, value) in manifest.mainAttributes) {
                     jarInfo.manifest["$key"] = value.toString()
-//                    println("${key}: $value")
                 }
             }
 
@@ -90,9 +89,11 @@ fun displayJarInfo(jars: List<JarInfo>) {
             }
             println()
         }
-        jar.classes.forEach { clazz ->
-            println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}")
+        if (classes) {
+            jar.classes.forEach { clazz ->
+                println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}")
+            }
+            println("")
         }
-        println("")
     }
 }
