@@ -22,7 +22,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -30,7 +30,7 @@ application {
     mainClass = "jarQuery.AppKt"
 }
 
-version = "0.5.0"
+version = "0.6.0"
 val now = ZonedDateTime.now()
 val dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm z")
 
@@ -39,7 +39,6 @@ tasks.register("updateVersionInSource") {
     description = "Updates the appVersion in Config.kt"
 
     doLast {
-        println("**** updating version number")
         val versionFile = file("src/main/kotlin/jarQuery/Config.kt")
         val content = versionFile.readText()
         val updatedContent = content.replace(

@@ -3,11 +3,14 @@ package jarQuery.utils
 import java.io.DataInputStream
 import java.io.InputStream
 
+const val INVALID_CLASS = -10
+const val UNKNOWN_MAJOR_VERION = -11
+
 fun getJavaVersionFromStream(aStream: InputStream): Int {
     DataInputStream(aStream).use { dis ->
 // Read and check the magic number
         if (dis.readInt() != 0xCAFEBABE.toInt()) {
-            error("Not a valid Java class file",40)
+            return INVALID_CLASS
         }
 
         // Skip minor version
@@ -15,8 +18,8 @@ fun getJavaVersionFromStream(aStream: InputStream): Int {
 
         // Read major version
         val majorVersion = dis.readUnsignedShort()
-        if (majorVersion < 45 || majorVersion > 65) {
-            error("unknown version number: ${majorVersion}", 50)
+        if (majorVersion < 45) {
+            return UNKNOWN_MAJOR_VERION
         }
         return majorVersion - 44
 

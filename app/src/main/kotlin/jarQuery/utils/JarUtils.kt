@@ -44,21 +44,26 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
 
             var entryCount = 0
             jFile.stream().forEach { entry ->
-                if (!entry.isDirectory && entry.name.endsWith(".class")) {
-                    entryCount++
+                if (!entry.isDirectory && entry.name.endsWith(".class")
+                    && !entry.name.startsWith("META-INF")) {
                     val ver = getJavaVersionFromStream(jFile.getInputStream(entry))
-                    if (jarInfo.minVersion > ver) {
-                        jarInfo.minVersion = ver
+                    if (ver == INVALID_CLASS) {
+                        println("ERROR: ${entry.name} in ${jFile.name} is not a valid class file")
+                    } else if (ver == UNKNOWN_MAJOR_VERION) {
+                        println("ERROR: ${entry.name} in ${jFile.name} has unknown major version number")
+                    } else {
+                        entryCount++
+                        if (jarInfo.minVersion > ver) {
+                            jarInfo.minVersion = ver
+                        }
+                        if (ver > jarInfo.maxVersion) {
+                            jarInfo.maxVersion = ver
+                        }
+                        val modified = entry.lastModifiedTime.toInstant()
+                        val localDataTime = LocalDateTime.ofInstant(modified, ZoneId.systemDefault())
+                        val classInfo = ClassInfo(entry.name, ver, entry.size, localDataTime)
+                        jarInfo.classes.add(classInfo)
                     }
-                    if (ver > jarInfo.maxVersion) {
-                        jarInfo.maxVersion = ver
-                    }
-                    val modified = entry.lastModifiedTime.toInstant()
-                    val localDataTime = LocalDateTime.ofInstant(modified, ZoneId.systemDefault())
-                    val classInfo = ClassInfo(entry.name, ver, entry.size, localDataTime)
-                    jarInfo.classes.add(classInfo)
-                } else {
-                    debugMsg("Skipping: ${entry.name}")
                 }
             }
         } catch (e: ZipException) {
