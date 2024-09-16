@@ -4,6 +4,7 @@ import jarQuery.data.ClassInfo
 import jarQuery.data.JarInfo
 import jarQuery.manifest
 import jarQuery.classes
+import jarQuery.maxVersion
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -94,7 +95,11 @@ fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
 
 fun displayJarInfo(jars: List<JarInfo>) {
     jars.forEach { jar ->
-        println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
+        if (jar.maxVersion > maxVersion) {
+            println("Name: ${jar.name} exceeds max version ${maxVersion}")
+        } else if (maxVersion == -1) {
+            println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
+        }
         if (manifest) {
             println("    Manifest:")
             for ((key, value) in jar.manifest) {

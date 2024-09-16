@@ -10,6 +10,7 @@ import picocli.CommandLine.Option
 
 import java.io.File
 import java.util.concurrent.Callable
+import kotlin.math.max
 import kotlin.system.exitProcess
 
 @Command(name = "jarQuery", mixinStandardHelpOptions = true, version = ["jarQuery $appVersion"],
@@ -33,11 +34,16 @@ class JarQuery : Callable<Int> {
     @Option(names = ["-m", "--manifest"], description = ["Display manifest attributes"])
     var manifestOption = false
 
+    @Option(names = ["--max"], paramLabel = "max", description = ["Only display jar files with java version > max"])
+    var maxVersionOption = -1
+
     override fun call(): Int {
         var result = 0
         debug = debugOption
         manifest = manifestOption
         classes = classesOption
+        maxVersion = maxVersionOption
+
         val jars: MutableList<JarInfo> = mutableListOf()
 
         when {
