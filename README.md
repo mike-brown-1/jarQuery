@@ -15,8 +15,6 @@ been true since version 1.1.
 The project is built with [Gradle](https://gradle.org/).  Use `./gradlew shadowJar` to build.
 
 # Goals and Ideas
-* Search single or multiple jar files to only report jar files containing classes
-whose target java version exceeds a specified value
 * When searching multiple jars in a directory, use coroutines to speed up the process
 
 

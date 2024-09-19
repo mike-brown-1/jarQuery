@@ -4,6 +4,7 @@ import jarQuery.utils.displayJarInfo
 import jarQuery.utils.error
 import jarQuery.utils.processDirectory
 import jarQuery.utils.processFile
+import jarQuery.utils.recurseDirectories
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
@@ -34,6 +35,9 @@ class JarQuery : Callable<Int> {
     @Option(names = ["-m", "--manifest"], description = ["Display manifest attributes"])
     var manifestOption = false
 
+    @Option(names = ["-r", "--recurse"], description = ["With -d, search directory recursively"])
+    var recurseOption = false
+
     @Option(names = ["--max"], paramLabel = "max", description = ["Only display jar files with java version > max"])
     var maxVersionOption = -1
 
@@ -43,6 +47,7 @@ class JarQuery : Callable<Int> {
         manifest = manifestOption
         classes = classesOption
         maxVersion = maxVersionOption
+        recurse = recurseOption
 
         val jars: MutableList<JarInfo> = mutableListOf()
 
@@ -59,7 +64,11 @@ class JarQuery : Callable<Int> {
             else -> {
                 val dir = directoryOption
                 if (dir != null) {
-                    result = processDirectory(dir, jars)
+                    if (recurse) {
+                        result = recurseDirectories(dir, jars)
+                    } else {
+                        result = processDirectory(dir, jars)
+                    }
                 }
             }
         }

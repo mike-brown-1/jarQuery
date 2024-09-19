@@ -77,14 +77,10 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
 fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
     var result = 0
     if (isValidDirectory(directory)) {
-        debugMsg("processing directory: ${directory.name}")
+        debugMsg("processing directory: ${directory.absolutePath}")
         val jarFiles = getJarFiles(directory)
-        if (jarFiles.isEmpty()) {
-            println("No jar files found in ${directory.name}")
-        } else {
-            jarFiles.forEach { jar ->
-                processFile(jar, jars)
-            }
+        jarFiles.forEach { jar ->
+            processFile(jar, jars)
         }
     } else  {
         println("${directory.name} is not a valid directory")
@@ -95,10 +91,10 @@ fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
 
 fun displayJarInfo(jars: List<JarInfo>) {
     jars.forEach { jar ->
-        if (jar.maxVersion > maxVersion) {
-            println("Name: ${jar.name} exceeds max version ${maxVersion}")
-        } else if (maxVersion == -1) {
+        if (maxVersion == -1) {
             println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
+        } else  if (jar.maxVersion > maxVersion) {
+            println("Name: ${jar.name} exceeds max version ${maxVersion}")
         }
         if (manifest) {
             println("    Manifest:")
@@ -116,4 +112,14 @@ fun displayJarInfo(jars: List<JarInfo>) {
             println("")
         }
     }
+}
+
+fun recurseDirectories(directory: File, jars: MutableList<JarInfo>): Int {
+    var result = 0
+    val directories = listDirectoriesRecursively(directory)
+    debugMsg("Searching ${directories.size} directories")
+    directories.forEach { directory ->
+        result = processDirectory(directory, jars)
+    }
+    return result
 }

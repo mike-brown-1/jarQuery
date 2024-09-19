@@ -2,6 +2,7 @@ package jarQuery
 
 import jarQuery.utils.getJarFiles
 import jarQuery.utils.getJavaVersionFromStream
+import jarQuery.utils.listDirectoriesRecursively
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.lang.IllegalArgumentException
@@ -36,5 +37,11 @@ class UtilsTest {
         println("currentTime: $currentTime")
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
         println("formatted: ${currentTime.format(formatter)}")
+    }
+
+    @Test
+    fun listDirectories() {
+        val directories = listDirectoriesRecursively(File("."))
+        assertTrue(directories.isNotEmpty())
     }
 }

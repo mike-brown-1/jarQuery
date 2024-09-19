@@ -26,3 +26,11 @@ fun getJarFiles(directory: File): List<File> {
     }
     return jars
 }
+
+fun listDirectoriesRecursively(startDir: File): List<File> {
+    require(startDir.isDirectory) { "The starting path must be a directory" }
+
+    return startDir.walkTopDown()
+        .filter { it.isDirectory }
+        .toList()
+}
