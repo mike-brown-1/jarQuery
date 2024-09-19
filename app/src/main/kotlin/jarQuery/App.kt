@@ -1,6 +1,7 @@
 package jarQuery
 import jarQuery.data.JarInfo
-import jarQuery.utils.displayJarInfo
+import jarQuery.utils.displayJar
+import jarQuery.utils.displayJars
 import jarQuery.utils.error
 import jarQuery.utils.processDirectory
 import jarQuery.utils.processFile
@@ -58,7 +59,12 @@ class JarQuery : Callable<Int> {
                 // work around "mutable property that could be mutated concurrently" error
                 val jf = jarFileOption
                 if (jf != null) {
-                    result = processFile(jf, jars)
+                    val processResult = processFile(jf)
+                    processResult.onSuccess { jar -> displayJar(jar) }
+                    processResult.onFailure { ex ->
+                        result = 50
+                        println("**** ERROR: ${ex.message}")
+                    }
                 }
             }
             else -> {
@@ -69,10 +75,10 @@ class JarQuery : Callable<Int> {
                     } else {
                         result = processDirectory(dir, jars)
                     }
+                    displayJars(jars)
                 }
             }
         }
-        displayJarInfo(jars)
         return result
     }
 }

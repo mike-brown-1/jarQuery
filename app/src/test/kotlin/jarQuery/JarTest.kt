@@ -39,8 +39,8 @@ class JarTest {
         val jarFiles = buildLibsDir.listFiles(jarFilter)
         if (jarFiles != null) {
             val jars: MutableList<JarInfo> = mutableListOf()
-            val result = processFile(jarFiles[0], jars)
-            assertTrue(result == 0)
+            val result = processFile(jarFiles[0])
+            assertTrue(result.isSuccess)
         }
     }
 

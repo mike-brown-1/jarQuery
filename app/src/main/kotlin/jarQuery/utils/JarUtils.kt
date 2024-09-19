@@ -25,16 +25,15 @@ fun isValidDirectory(dir: File): Boolean {
     return dir.exists() && dir.isDirectory()
 }
 
-fun processFile(file: File, jars: MutableList<JarInfo>): Int {
+fun processFile(file: File): Result<JarInfo> {
     var result = 0
     debugMsg("processing file: ${file.name}")
     if (!isValidFile(file)) {
-        result = error("${file.name} is not a file or does not exist}", 30)
+        return Result.failure(Exception("${file.name} is not a file or does not exist"))
     } else {
         try {
             val jFile = JarFile(file)
             val jarInfo = JarInfo(jFile.name, mutableMapOf<String, String>(), 99, 0, mutableListOf<ClassInfo>())
-            jars.add(jarInfo)
 
             if (manifest) {
                 val manifest = jFile.manifest
@@ -47,12 +46,11 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
             jFile.stream().forEach { entry ->
                 if (!entry.isDirectory && entry.name.endsWith(".class")
                     && !entry.name.startsWith("META-INF")) {
-                    val ver = getJavaVersionFromStream(jFile.getInputStream(entry))
-                    if (ver == INVALID_CLASS) {
-                        println("ERROR: ${entry.name} in ${jFile.name} is not a valid class file")
-                    } else if (ver == UNKNOWN_MAJOR_VERION) {
-                        println("ERROR: ${entry.name} in ${jFile.name} has unknown major version number")
-                    } else {
+                    val result = getJavaVersionFromStream(jFile.getInputStream(entry))
+                    result.onFailure { ex ->
+                        println("**** ERROR: ${ex.message} for class: ${entry.name} in: ${jFile.name}")
+                    }
+                    result.onSuccess { ver ->
                         entryCount++
                         if (jarInfo.minVersion > ver) {
                             jarInfo.minVersion = ver
@@ -67,11 +65,11 @@ fun processFile(file: File, jars: MutableList<JarInfo>): Int {
                     }
                 }
             }
+            return Result.success(jarInfo)
         } catch (e: ZipException) {
-            result = error("Not a valid jar file: ${e.message}", 60)
+            return Result.failure(Exception("Not a valid jar file: ${e.message}"))
         }
     }
-    return result
 }
 
 fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
@@ -80,7 +78,9 @@ fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
         debugMsg("processing directory: ${directory.absolutePath}")
         val jarFiles = getJarFiles(directory)
         jarFiles.forEach { jar ->
-            processFile(jar, jars)
+            val result = processFile(jar)
+            result.onSuccess { jarInfo -> jars.add(jarInfo) }
+            result.onFailure { ex -> println("**** ERROR: ${ex.message}") }
         }
     } else  {
         println("${directory.name} is not a valid directory")
@@ -89,28 +89,32 @@ fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
     return result
 }
 
-fun displayJarInfo(jars: List<JarInfo>) {
+fun displayJars(jars: List<JarInfo>) {
     jars.forEach { jar ->
-        if (maxVersion == -1) {
-            println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
-        } else  if (jar.maxVersion > maxVersion) {
-            println("Name: ${jar.name} exceeds max version ${maxVersion}")
-        }
-        if (manifest) {
-            println("    Manifest:")
-            for ((key, value) in jar.manifest) {
-                println("        $key: $value")
-            }
-            println()
-        }
-        if (classes) {
-            jar.classes.forEach { clazz ->
-                println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}, "
-                        + "modified: ${clazz.modified.format(formatter)}")
+        displayJar(jar)
+    }
+}
 
-            }
-            println("")
+fun displayJar(jar: JarInfo) {
+    if (maxVersion == -1) {
+        println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
+    } else  if (jar.maxVersion > maxVersion) {
+        println("Name: ${jar.name} exceeds max version ${maxVersion}")
+    }
+    if (manifest) {
+        println("    Manifest:")
+        for ((key, value) in jar.manifest) {
+            println("        $key: $value")
         }
+        println()
+    }
+    if (classes) {
+        jar.classes.forEach { clazz ->
+            println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}, "
+                    + "modified: ${clazz.modified.format(formatter)}")
+
+        }
+        println("")
     }
 }
 

@@ -12,14 +12,15 @@ class ClassTest {
     @Test
     fun getJavaVersion() {
         val classFile = File("./build/classes/kotlin/main/jarQuery/AppKt.class")
-        println("target version: ${getJavaVersionFromStream(classFile.inputStream())}")
-        assertTrue(true)
+        val result = getJavaVersionFromStream(classFile.inputStream())
+        assertTrue(result.isSuccess)
+        println("target version: ${result.getOrNull()}")
     }
 
     @Test
     fun testInvalidClassFile() {
-        assertFailsWith<IllegalArgumentException> {
-            getJavaVersionFromStream(File("/home/mike/projects/jarQuery/README.md").inputStream())
-        }
+        val  result = getJavaVersionFromStream(File("/home/mike/projects/jarQuery/README.md").inputStream())
+        assertTrue(result.isFailure)
+        println("Failure: ${result.exceptionOrNull()?.message}")
     }
 }

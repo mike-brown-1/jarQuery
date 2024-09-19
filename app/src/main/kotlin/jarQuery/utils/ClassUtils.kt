@@ -6,11 +6,11 @@ import java.io.InputStream
 const val INVALID_CLASS = -10
 const val UNKNOWN_MAJOR_VERION = -11
 
-fun getJavaVersionFromStream(aStream: InputStream): Int {
+fun getJavaVersionFromStream(aStream: InputStream): Result<Int> {
     DataInputStream(aStream).use { dis ->
-// Read and check the magic number
+        // Read and check the magic number
         if (dis.readInt() != 0xCAFEBABE.toInt()) {
-            return INVALID_CLASS
+            return Result.failure(Exception("Invalid class"))
         }
 
         // Skip minor version
@@ -19,9 +19,9 @@ fun getJavaVersionFromStream(aStream: InputStream): Int {
         // Read major version
         val majorVersion = dis.readUnsignedShort()
         if (majorVersion < 45) {
-            return UNKNOWN_MAJOR_VERION
+            return Result.failure(Exception("Unknown Java major version"))
         }
-        return majorVersion - 44
+        return Result.success(majorVersion - 44)
 
 //        // Map major version to Java version
 //        return when (majorVersion) {
