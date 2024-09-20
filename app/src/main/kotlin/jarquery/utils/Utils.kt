@@ -1,6 +1,6 @@
-package jarQuery.utils
+package jarquery.utils
 
-import jarQuery.debug
+import jarquery.Config
 import java.io.File
 import java.io.FilenameFilter
 
@@ -10,7 +10,7 @@ fun error(message: String, result: Int): Int {
 }
 
 fun debugMsg(message: String) {
-    if (debug) {
+    if (Config.debug) {
         println("DEBUG: $message")
     }
 }

@@ -1,21 +1,19 @@
-package jarQuery
-import jarQuery.data.JarInfo
-import jarQuery.utils.displayJar
-import jarQuery.utils.displayJars
-import jarQuery.utils.error
-import jarQuery.utils.processDirectory
-import jarQuery.utils.processFile
-import jarQuery.utils.recurseDirectories
+package jarquery
+import jarquery.utils.displayJar
+import jarquery.utils.displayJars
+import jarquery.utils.error
+import jarquery.utils.processDirectory
+import jarquery.utils.processFile
+import jarquery.utils.recurseDirectories
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import picocli.CommandLine.Option
 
 import java.io.File
 import java.util.concurrent.Callable
-import kotlin.math.max
 import kotlin.system.exitProcess
 
-@Command(name = "jarQuery", mixinStandardHelpOptions = true, version = ["jarQuery $appVersion"],
+@Command(name = "jarquery", mixinStandardHelpOptions = true, version = ["jarquery ${Config.APPVERSION}"],
     description = ["Display information about one or more JAR files to STDOUT."])
 class JarQuery : Callable<Int> {
 
@@ -44,13 +42,12 @@ class JarQuery : Callable<Int> {
 
     override fun call(): Int {
         var result = 0
-        debug = debugOption
-        manifest = manifestOption
-        classes = classesOption
-        maxVersion = maxVersionOption
-        recurse = recurseOption
+        Config.debug = debugOption
+        Config.manifest = manifestOption
+        Config.classes = classesOption
+        Config.maxVersion = maxVersionOption
+        Config.recurse = recurseOption
 
-        val jars: MutableList<JarInfo> = mutableListOf()
 
         when {
             jarFileOption != null && directoryOption != null -> error("Specify either file or directory, not both", 10)
@@ -70,12 +67,16 @@ class JarQuery : Callable<Int> {
             else -> {
                 val dir = directoryOption
                 if (dir != null) {
-                    if (recurse) {
-                        result = recurseDirectories(dir, jars)
+                    val processResult = if (Config.recurse) {
+                        recurseDirectories(dir)
                     } else {
-                        result = processDirectory(dir, jars)
+                        processDirectory(dir)
                     }
-                    displayJars(jars)
+                    processResult.onSuccess { jars -> displayJars(jars) }
+                    processResult.onFailure { ex ->
+                        result = 50
+                        println("**** ERROR: ${ex.message}")
+                    }
                 }
             }
         }

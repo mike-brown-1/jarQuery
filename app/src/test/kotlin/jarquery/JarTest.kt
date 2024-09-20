@@ -1,9 +1,9 @@
-package jarQuery
+package jarquery
 
-import jarQuery.data.JarInfo
-import jarQuery.utils.isValidFile
-import jarQuery.utils.processFile
-import jarQuery.utils.recurseDirectories
+import jarquery.data.JarInfo
+import jarquery.utils.isValidFile
+import jarquery.utils.processFile
+import jarquery.utils.recurseDirectories
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.FilenameFilter
@@ -48,8 +48,8 @@ class JarTest {
     fun testRecurse() {
         val buildLibsDir = File("build/libs")
         val jars: MutableList<JarInfo> = mutableListOf()
-        val result = recurseDirectories(buildLibsDir, jars)
-        assertTrue(result == 0)
-        assertTrue(jars.isNotEmpty())
+        val result = recurseDirectories(buildLibsDir)
+        assertTrue(result.isSuccess)
+        result.onSuccess { jars -> assertTrue(jars.isNotEmpty()) }
     }
 }

@@ -1,10 +1,8 @@
-package jarQuery.utils
+package jarquery.utils
 
-import jarQuery.data.ClassInfo
-import jarQuery.data.JarInfo
-import jarQuery.manifest
-import jarQuery.classes
-import jarQuery.maxVersion
+import jarquery.Config
+import jarquery.data.ClassInfo
+import jarquery.data.JarInfo
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,7 +13,6 @@ import java.util.zip.ZipException
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
 
 fun isValidFile(file: File): Boolean {
     return file.exists() && file.isFile()
@@ -26,16 +23,16 @@ fun isValidDirectory(dir: File): Boolean {
 }
 
 fun processFile(file: File): Result<JarInfo> {
-    var result = 0
     debugMsg("processing file: ${file.name}")
+    var result: Result<JarInfo>
     if (!isValidFile(file)) {
-        return Result.failure(Exception("${file.name} is not a file or does not exist"))
+        result = Result.failure(Exception("${file.name} is not a file or does not exist"))
     } else {
         try {
             val jFile = JarFile(file)
             val jarInfo = JarInfo(jFile.name, mutableMapOf<String, String>(), 99, 0, mutableListOf<ClassInfo>())
 
-            if (manifest) {
+            if (Config.manifest) {
                 val manifest = jFile.manifest
                 for ((key, value) in manifest.mainAttributes) {
                     jarInfo.manifest["$key"] = value.toString()
@@ -46,11 +43,11 @@ fun processFile(file: File): Result<JarInfo> {
             jFile.stream().forEach { entry ->
                 if (!entry.isDirectory && entry.name.endsWith(".class")
                     && !entry.name.startsWith("META-INF")) {
-                    val result = getJavaVersionFromStream(jFile.getInputStream(entry))
-                    result.onFailure { ex ->
+                    val processResult = getJavaVersionFromStream(jFile.getInputStream(entry))
+                    processResult.onFailure { ex ->
                         println("**** ERROR: ${ex.message} for class: ${entry.name} in: ${jFile.name}")
                     }
-                    result.onSuccess { ver ->
+                    processResult.onSuccess { ver ->
                         entryCount++
                         if (jarInfo.minVersion > ver) {
                             jarInfo.minVersion = ver
@@ -65,28 +62,28 @@ fun processFile(file: File): Result<JarInfo> {
                     }
                 }
             }
-            return Result.success(jarInfo)
+            result = Result.success(jarInfo)
         } catch (e: ZipException) {
-            return Result.failure(Exception("Not a valid jar file: ${e.message}"))
+            result = Result.failure(Exception("Not a valid jar file: ${e.message}"))
         }
     }
+    return result
 }
 
-fun processDirectory(directory: File, jars: MutableList<JarInfo>): Int {
-    var result = 0
+fun processDirectory(directory: File): Result<MutableList<JarInfo>> {
     if (isValidDirectory(directory)) {
         debugMsg("processing directory: ${directory.absolutePath}")
         val jarFiles = getJarFiles(directory)
+        val jars: MutableList<JarInfo> = mutableListOf()
         jarFiles.forEach { jar ->
             val result = processFile(jar)
             result.onSuccess { jarInfo -> jars.add(jarInfo) }
             result.onFailure { ex -> println("**** ERROR: ${ex.message}") }
         }
+        return Result.success(jars)
     } else  {
-        println("${directory.name} is not a valid directory")
-        result = 40
+        return Result.failure(Exception("${directory.name} is not a valid directory"))
     }
-    return result
 }
 
 fun displayJars(jars: List<JarInfo>) {
@@ -96,19 +93,20 @@ fun displayJars(jars: List<JarInfo>) {
 }
 
 fun displayJar(jar: JarInfo) {
-    if (maxVersion == -1) {
+    if (Config.maxVersion == -1) {
         println("Name: ${jar.name}, min: ${jar.minVersion}, max: ${jar.maxVersion}, classes: ${jar.classes.size}")
-    } else  if (jar.maxVersion > maxVersion) {
-        println("Name: ${jar.name} exceeds max version ${maxVersion}")
+    } else  if (jar.maxVersion > Config.maxVersion) {
+        println("Name: ${jar.name} exceeds max version ${Config.maxVersion}")
     }
-    if (manifest) {
+    if (Config.manifest) {
         println("    Manifest:")
         for ((key, value) in jar.manifest) {
             println("        $key: $value")
         }
         println()
     }
-    if (classes) {
+    if (Config.classes) {
+        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
         jar.classes.forEach { clazz ->
             println("    name: ${clazz.name}, ver: ${clazz.version}, size: ${clazz.size}, "
                     + "modified: ${clazz.modified.format(formatter)}")
@@ -118,12 +116,13 @@ fun displayJar(jar: JarInfo) {
     }
 }
 
-fun recurseDirectories(directory: File, jars: MutableList<JarInfo>): Int {
-    var result = 0
+fun recurseDirectories(directory: File): Result<MutableList<JarInfo>> {
     val directories = listDirectoriesRecursively(directory)
+    val jars: MutableList<JarInfo> = mutableListOf()
     debugMsg("Searching ${directories.size} directories")
-    directories.forEach { directory ->
-        result = processDirectory(directory, jars)
+    directories.forEach { theDirectory ->
+        val result = processDirectory(theDirectory)
+        result.onSuccess { jarInfo -> jars.addAll(jarInfo) }
     }
-    return result
+    return Result.success(jars)
 }

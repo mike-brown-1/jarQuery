@@ -6,6 +6,7 @@ plugins {
     application
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.github.ben-manes.versions") version "0.51.0"
+    id("io.gitlab.arturbosch.detekt") version("1.23.3")
 }
 
 repositories {
@@ -27,10 +28,10 @@ java {
 }
 
 application {
-    mainClass = "jarQuery.AppKt"
+    mainClass = "jarquery.JarQueryKt"
 }
 
-version = "0.8.0"
+version = "0.9.0"
 val now = ZonedDateTime.now()
 val dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm z")
 
@@ -39,11 +40,11 @@ tasks.register("updateVersionInSource") {
     description = "Updates the appVersion in Config.kt"
 
     doLast {
-        val versionFile = file("src/main/kotlin/jarQuery/Config.kt")
+        val versionFile = file("src/main/kotlin/jarquery/Config.kt")
         val content = versionFile.readText()
         val updatedContent = content.replace(
-            """const val appVersion = ".*"""".toRegex(),
-            """const val appVersion = "${project.version}""""
+            """const val APPVERSION = ".*"""".toRegex(),
+            """const val APPVERSION = "${project.version}""""
         )
         versionFile.writeText(updatedContent)
     }
@@ -56,7 +57,7 @@ tasks.named("compileKotlin") {
 tasks.jar {
     manifest {
         attributes(
-            "Implementation-Title" to "jarQuery",
+            "Implementation-Title" to "jarquery",
             "Implementation-Version" to archiveVersion,
             "Implementation-Vendor" to "Mike Brown",
             "Built-On" to dtf.format(now)

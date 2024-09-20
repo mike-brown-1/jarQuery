@@ -1,4 +1,4 @@
-# jarQuery
+# jarquery
 
 [Kotlin](https://kotlinlang.org/) Command line (CLI) application that displays information about a Java 
 Archive (JAR) file.
