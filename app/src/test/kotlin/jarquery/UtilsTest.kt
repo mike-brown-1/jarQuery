@@ -1,15 +1,12 @@
-package jarQuery
+package jarquery
 
-import jarQuery.utils.getJarFiles
-import jarQuery.utils.getJavaVersionFromStream
-import jarQuery.utils.listDirectoriesRecursively
+import jarquery.utils.getJarFiles
+import jarquery.utils.listDirectoriesRecursively
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class UtilsTest {
@@ -18,7 +15,7 @@ class UtilsTest {
     fun getJarsFromDirectory() {
         val dir = File("../jars")
         val jars = getJarFiles(dir)
-        assertTrue(jars.size > 0, "should have a couple of jars")
+        assertTrue(jars.isNotEmpty(), "should have a couple of jars")
     }
 
     @Test
