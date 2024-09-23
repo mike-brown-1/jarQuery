@@ -1,12 +1,16 @@
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+//
+// See gradle/libs.versions.toml for specific version numbers
+//
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.github.ben-manes.versions") version "0.51.0"
-    id("io.gitlab.arturbosch.detekt") version("1.23.3")
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.versions)
+    alias(libs.plugins.detekt)
 }
 
 repositories {
@@ -14,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("info.picocli:picocli:4.7.6")
+    implementation(libs.picocli)
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(libs.junit.jupiter.engine)
 
@@ -31,7 +35,7 @@ application {
     mainClass = "jarquery.JarQueryKt"
 }
 
-version = "0.9.0"
+version = "0.9.1"
 val now = ZonedDateTime.now()
 val dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm z")
 

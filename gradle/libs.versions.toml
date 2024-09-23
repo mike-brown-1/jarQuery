@@ -1,8 +1,13 @@
 [versions]
 junit-jupiter-engine = "5.11.0"
+picocli = "4.7.6"
 
 [libraries]
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter-engine" }
+picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.0.20" }
+versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.7" }
+shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
