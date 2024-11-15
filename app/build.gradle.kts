@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.shadow)
     alias(libs.plugins.versions)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.gitversion)
 }
 
 repositories {
@@ -37,7 +38,7 @@ application {
 
 version = "0.9.1"
 val now = ZonedDateTime.now()
-val dtf = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm z")
+val dtf = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 tasks.register("updateVersionInSource") {
     group = "build"
@@ -63,8 +64,11 @@ tasks.jar {
         attributes(
             "Implementation-Title" to "jarquery",
             "Implementation-Version" to archiveVersion,
-            "Implementation-Vendor" to "Mike Brown",
-            "Built-On" to dtf.format(now)
+            "Implementation-Vendor" to System.getProperty("user.name"),
+            "Built-On" to dtf.format(now),
+            "Created-By" to "Gradle ${gradle.gradleVersion}",
+            "Build-Jdk" to "${System.getProperty("java.version")} (${System.getProperty("java.vendor")} ${System.getProperty("java.vm.version")})",
+            "Build-OS" to "${System.getProperty("os.name")} ${System.getProperty("os.arch")} ${System.getProperty("os.version")}"
         )
     }
 }
