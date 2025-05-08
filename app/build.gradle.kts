@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.versions)
     alias(libs.plugins.detekt)
     alias(libs.plugins.gitversion)
+    alias(libs.plugins.dokka)
 }
 
 repositories {
@@ -19,7 +20,8 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.picocli)
+    implementation(libs.clikt)
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(libs.junit.jupiter.engine)
 
@@ -33,10 +35,10 @@ java {
 }
 
 application {
-    mainClass = "jarquery.JarQueryKt"
+    mainClass = "jarquery.AppKt"
 }
 
-version = "0.9.1"
+version = "1.2.0"
 val now = ZonedDateTime.now()
 val dtf = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 

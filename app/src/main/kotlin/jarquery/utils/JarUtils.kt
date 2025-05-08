@@ -13,11 +13,18 @@ import java.util.zip.ZipException
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-
+/**
+ * Determines if a file object is indeed a file and it exists
+ * @return true if it meets the criteria
+ */
 fun isValidFile(file: File): Boolean {
     return file.exists() && file.isFile()
 }
 
+/**
+ * Determines if a file object is indeed a directory and it exists
+ * @return true if it meets the criteria
+ */
 fun isValidDirectory(dir: File): Boolean {
     return dir.exists() && dir.isDirectory()
 }
