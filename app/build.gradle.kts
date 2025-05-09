@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.gitversion)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.graalvm)
 }
 
 repositories {

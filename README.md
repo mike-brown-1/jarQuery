@@ -33,6 +33,19 @@ assumes the major version number of class files will increment by one for each r
 The project is built with [Gradle](https://gradle.org/).  Use `./gradlew shadowJar` to build.  This produces a single jar file
 with all required dependencies to run the program.
 
+### GraalVM
+I installed the community edition of GraalVM for Java 21.  My development system is Linux Mint, which was missing
+libz.  I had to install it:
+
+```shell
+sudo apt install libz-dev
+```
+
+The native image is built with:
+
+```shell
+./gradlew nativeCompile
+```
 # Goals and Ideas
 * When searching multiple jars in a directory, use coroutines to speed up the process
 
