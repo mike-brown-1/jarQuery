@@ -15,6 +15,7 @@ import kotlin.collections.component2
 
 /**
  * Determines if a file object is indeed a file and it exists
+ * @param file the file to check
  * @return true if it meets the criteria
  */
 fun isValidFile(file: File): Boolean {
@@ -23,6 +24,7 @@ fun isValidFile(file: File): Boolean {
 
 /**
  * Determines if a file object is indeed a directory and it exists
+ * @param dir the directory to check
  * @return true if it meets the criteria
  */
 fun isValidDirectory(dir: File): Boolean {

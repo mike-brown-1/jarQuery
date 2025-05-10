@@ -1,5 +1,10 @@
 package jarquery
 
+/**
+ * Holds the application configuration.
+ *
+ * Populated by [QueryCli] after parsing the command line arguments.
+ */
 object Config {
     var debug = false
     var manifest = false
